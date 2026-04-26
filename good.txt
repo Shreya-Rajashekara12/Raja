@@ -1,3 +1,471 @@
- hi how are u
-hello how r u 
- b1
+✅ STEP 1: Install Required Plugins
+
+👉 Go to Jenkins Dashboard → Manage Jenkins → Plugins
+
+Install:
+
+Git Plugin
+Pipeline Plugin
+Maven Integration Plugin
+Slack Notification Plugin
+Email Extension Plugin (optional)
+
+👉 Restart Jenkins
+
+✅ STEP 2: Configure Maven Tool
+
+👉 Go to Manage Jenkins → Tools → Maven Installations
+
+Fill:
+
+Name: Maven3
+Uncheck ❌ Install automatically
+Maven Home:
+C:\Program Files\apache-maven-3.9.12
+
+👉 Save
+
+✅ STEP 3: Configure Git (fix warning)
+
+👉 Go to Manage Jenkins → Tools → Git
+
+Set:
+
+C:\Program Files\Git\bin\git.exe
+
+👉 Save
+
+✅ STEP 4: Create Slack Workspace
+
+👉 Go to https://slack.com
+
+Create workspace → e.g.:
+hello-odm9638
+✅ STEP 5: Create Slack Channel
+
+Inside Slack:
+
+Click + Create Channel
+Name:
+jenkins
+
+👉 Final channel:
+
+#jenkins
+✅ STEP 6: Generate Slack Token
+
+👉 Go to:
+https://my.slack.com/services/new/jenkins-ci
+
+Select workspace
+Click Add Integration
+
+👉 Copy token:
+
+xoxb-xxxxxxxxxxxx
+✅ STEP 7: Add Token in Jenkins (IMPORTANT)
+
+👉 Go to Manage Jenkins → Manage Credentials
+
+(global) → Add Credentials
+
+Fill:
+
+Field	Value
+Kind	Secret Text
+Secret	(paste token)
+ID	slack-token
+
+👉 Click Create
+
+✅ STEP 8: Configure Slack in Jenkins
+
+👉 Go to Manage Jenkins → System → Slack
+
+Fill:
+
+Field	Value
+Workspace	hello-odm9638
+Credentials	slack-token
+Channel	#jenkins
+
+👉 Click Save
+
+👉 Click:
+
+Test Connection
+
+✔ Should show SUCCESS
+
+✅ STEP 9: Invite Jenkins Bot (VERY IMPORTANT)
+
+Open Slack
+
+Go to:
+
+#jenkins
+
+Type:
+
+/invite @jenkins
+✅ STEP 10: Test with Freestyle Job
+🔹 Create Job
+
+👉 Jenkins → New Item
+
+Name: slack-test
+Type: Freestyle Project
+🔹 Add Build Step
+echo Jenkins Slack Test
+🔹 Add Post-build Action
+
+👉 Add → Slack Notifications
+
+✔ Select:
+
+Notify Success
+Notify Failure
+
+Channel:
+
+#jenkins
+
+👉 Save
+
+🔹 Run
+
+👉 Click Build Now
+
+✅ RESULT
+
+In Slack → #jenkins:
+
+slack-test #1 SUCCESS
+✅ STEP 11: Add to Pipeline (Final Integration)
+
+Update your Jenkinsfile:
+
+pipeline {
+    agent any
+
+    tools {
+        maven 'Maven3'
+    }
+
+    stages {
+
+        stage('CHECKOUT') {
+            steps {
+                git branch: 'main', url: 'https://github.com/Shreya-Rajashekara12/demo12.git'
+            }
+        }
+
+        stage('BUILD') {
+            steps {
+                dir('demo12') {
+                    bat 'mvn clean install'
+                }
+            }
+        }
+
+        stage('TEST') {
+            steps {
+                dir('demo12') {
+                    bat 'mvn test'
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            slackSend channel: '#jenkins', message: "✅ SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}"
+        }
+        failure {
+            slackSend channel: '#jenkins', message: "❌ FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}"
+        }
+    }
+}
+🎯 FINAL OUTPUT (Your System Does This)
+Jenkins pulls code from GitHub
+Builds project using Maven
+Runs tests
+Sends notification to Slack
+🧠 Viva Answer (Short)
+
+“I integrated Slack with Jenkins by generating a Slack token, storing it securely as credentials, configuring it in Jenkins system settings, and enabling notifications in both freestyle and pipeline jobs. This allows real-time build status updates in a Slack channel.”
+
+🏁 DONE
+
+✔ Jenkins configured
+✔ Maven working
+✔ Slack integrated
+✔ Notification working
+✔ Pipeline integrated
+
+
+
+
+C1. Create a maven projects with all dependencies required for the application
+in CI/CD pipeline.
+To run CI/CD pipeline in GitHub
+I. Install required tools
+II. Install Java (JDK 11 or higher)
+o Download from Oracle JDK or OpenJDK
+o Set environment variable:
+▪ JAVA_HOME = C:\Program Files\Java\jdk-XX
+▪ Add %JAVA_HOME%\bin to PATH
+
+III. Install Apache Maven
+o Download and extract
+o Set:
+▪ MAVEN_HOME = C:\apache-maven
+▪ Add %MAVEN_HOME%\bin to PATH
+
+IV. Install Visual Studio Code
+V. Install VS Code Extensions:
+o Extension Pack for Java
+o Maven for Java
+o Debugger for Java
+II. Create Maven Project in VS Code
+
+Open VS Code
+Press Ctrl + Shift + P
+Type: Java: Create Java Project
+Select Maven create from archetype
+Choose:
+Archetype → maven-archetype-quickstart
+Enter details:
+Group Id: com.example
+Artifact Id: demo (Give any name)
+Choose folder → Project will be created automatically
+
+Push the folder to git repository
+III. For CI/CD Pipeline (GitHub Actions)
+
+In the local folder
+Create a folder by name .github and inside that create worflows folder
+
+and in that create a file maven.yml
+
+Structure:
+Localfoldername
+-demo
+-.github/workflows/maven.yml
+
+Push this to Github repo
+
+IV. Check the actions tab in github for the CI working
+
+DevOps Lab Cheat Sheet
+
+Prof. Akshatha M, VVCE
+maven.yml
+name: Java CI/CD Pipeline
+on:
+push:
+branches: [ "main" ]
+jobs:
+build:
+runs-on: windows-latest
+env:
+FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+steps:
+- uses: actions/checkout@v4
+- uses: actions/setup-java@v4
+with:
+distribution: 'temurin'
+java-version: '11'
+- name: Build using Maven
+run: mvn clean install
+working-directory: demo
+C2:Integrate communication channel with Jenkins for status of project and also
+enable email notification for a build.
+Update the plugins in Jenkins
+Git Plugin
+Pipeline Plugin
+Maven Integration Plugin
+Create a Jenkinsfile of type file and push it to the repo
+Jenkinsfile
+pipeline {
+agent any
+tools {
+maven 'Maven3'
+}
+stages {
+
+DevOps Lab Cheat Sheet
+
+Prof. Akshatha M, VVCE
+stage('CHECKOUT') {
+steps {
+git 'your_github_repo_link'
+}
+}
+stage('Build') {
+steps {
+dir('demo'){
+bat 'mvn clean install'
+}
+}
+}
+stage('Test') {
+steps {
+dir('demo'){
+bat 'mvn test'
+}
+}
+}
+}
+}
+In Jenkins goto Manage Jenkins
+
+Tools
+Goto Maven installations
+Click on Maven installations
+Add maven
+Name= Maven3
+Uncheck auto installations
+Maven_Home path C:\Program Files\maven
+Save
+Now Click on Build Now
+For Notification – Slack Tool Usage
+Login to slack.com
+Create a workspace
+Ex: with any name given – it looks like hello-odm9638
+Login to https://my.slack.com/services/new/jenkins-ci
+Select the hello workspace
+Here token will be generated copy that token
+
+Now in Jenkins
+
+New item- freestyle project- ok
+In configure- build steps- windows batch command- echo Jenkins
+In post-build-action select Slack notification
+And check all the options
+Save
+
+DevOps Lab Cheat Sheet
+
+Prof. Akshatha M, VVCE
+Enable Slack notification in Jenkins
+Managejenkins- System
+Slack
+Workspace= hello-odm9638
+Credential= add – secret text
+Secret= (copied token)
+ID= any name ex: slack-token
+Channel= (channel name from slack website)
+ok
+
+
+git add .
+git commit -m "Added Jenkinsfile"
+git push
+
+
+
+
+PART 4: Create Pipeline Job in Jenkins
+👉 Go to:
+
+Jenkins → New Item
+
+Name: demo12-pipeline
+Select: Pipeline
+Click OK
+👉 In configuration:
+
+Pipeline → Select:
+
+Pipeline script from SCM
+SCM → Git
+Repo URL:
+https://github.com/Shreya-Rajashekara12/demo12.git
+Script Path:
+Jenkinsfile
+
+👉 Save → Click Build Now
+
+
+
+PART 4: Test using Freestyle Project (Lab requirement)
+🔹 Step 1: Create Job
+
+👉 Jenkins → New Item
+
+Name: slack-test
+Select: Freestyle Project
+Click OK
+🔹 Step 2: Configure
+Build Step:
+
+👉 Add → Execute Windows batch command
+
+echo Jenkins Slack Test
+Post-build Action:
+
+👉 Add → Slack Notifications
+
+✔ Check:
+
+Notify Success
+Notify Failure
+Notify Back to Normal
+
+Channel:
+
+#jenkins
+🔹 Step 3: Save
+🔹 Step 4: Click
+
+👉 Build Now
+
+
+
+
+
+
+
+
+
+
+STEP 1: Go back
+
+👉 Manage Jenkins → Manage Credentials → (global) → Add Credentials
+
+🔹 STEP 2: Change “Kind”
+
+Click dropdown Kind
+
+👉 Select:
+
+Secret text ✅
+🔹 STEP 3: Fill correctly
+
+Now you will see only 2 fields:
+
+Field	Value
+Secret	(paste Slack token here)
+ID	slack-token
+
+Example:
+
+Secret: xoxb-1234567890-abcdef
+ID: slack-token
+
+👉 Click Create
+
+🔹 STEP 4: Use it in Slack config
+
+Go to:
+
+👉 Manage Jenkins → System → Slack
+
+Now:
+
+Workspace: hello-odm9638
+Credentials: select slack-token 👈
+Channel: #jenkins
+
+👉 Save
